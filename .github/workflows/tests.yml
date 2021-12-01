@@ -63,7 +63,7 @@ jobs:
         make check-readme
 
   test-linux:
-    needs: test-sanity
+    #needs: test-sanity
     runs-on: ubuntu-latest
 
     strategy:
