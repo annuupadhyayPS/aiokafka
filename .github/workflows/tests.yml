@@ -13,55 +13,6 @@ on:
     branches: [ master ]
 
 jobs:
-  test-sanity:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libsnappy-dev libkrb5-dev
-
-    - name: Get pip cache dir
-      id: pip-cache
-      run: |
-        python -m pip install -U "pip>=20.1"
-        echo "::set-output name=dir::$(pip cache dir)"
-
-    - name: Cache packages
-      uses: actions/cache@v1
-      with:
-        path: ${{ steps.pip-cache.outputs.dir }}
-        key: ${{ runner.os }}-py-3.7-${{ hashFiles('requirements-ci.txt') }}-${{ hashFiles('setup.py') }}
-        # If miss on key takes any other cache with different hashes, will download correct ones on next step anyway
-        restore-keys: |
-         ${{ runner.os }}-py-3.7-
-
-    - name: Install python dependencies
-      run: |
-        pip install --upgrade pip setuptools wheel
-        pip install -r requirements-ci.txt
-        pip install -vv -Ue .  # We set -vv to see compiler exceptions/warnings
-
-    - name: Run Unit Tests
-      run: |
-        make ci-test-unit
-
-    - name: Lint code
-      run: |
-        make flake
-
-    - name: Check readme for package
-      run: |
-        make check-readme
-
   test-linux:
     #needs: test-sanity
     runs-on: ubuntu-latest
