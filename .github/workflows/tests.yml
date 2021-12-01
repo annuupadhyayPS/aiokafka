@@ -93,3 +93,42 @@ jobs:
         flags: integration,purepy
         name: test-linux-${{ matrix.python }}-${{ matrix.kafka }}-${{ matrix.scala }}-py
       if: ${{ always() }}
+      
+      
+  armv64_job:
+    name: Build and Test for arm64
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        include:
+          # FIXME Stick to 3.8.5 as 3.8.6 has broken `wait_for`
+          - python: 3.8.5
+            kafka: "2.4.0"
+            scala: "2.12"
+      fail-fast: false      
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up QEMU
+      id: qemu
+      uses: docker/setup-qemu-action@v1
+    - name: Install and test aiokafka
+      run: |
+            docker run --rm -v ${{ github.workspace }}:/ws:rw --workdir=/ws \
+              arm64v8/ubuntu:20.04 \
+              bash -exc 'apt update && \
+              apt install -y python3.8 && \
+              apt install -y python3.8-venv && \
+              python3.8 -m venv .env && \
+              source .env/bin/activate && \
+              python -m pip install --upgrade pip && \
+              apt-get update && \
+              apt install -y build-essential && \
+              apt-get install -y python3.8-dev && \
+              apt-get install -y libsnappy-dev libkrb5-dev krb5-user && \
+              python -m pip install -U "pip>=20.1" && \
+              python -m pip install --upgrade pip setuptools wheel && \
+              python -m pip install -r requirements-ci.txt && \
+              python -m pip install -vv -Ue . && \
+              make ci-test-all && \
+              mv coverage.xml coverage-py.xml && \
+              deactivate' 
