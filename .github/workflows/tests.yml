@@ -124,7 +124,8 @@ jobs:
               apt-get update && \
               apt install -y build-essential && \
               apt-get install -y python3.8-dev && \
-              apt-get install -y libsnappy-dev libkrb5-dev krb5-user && \
+              apt-get install -y libsnappy-dev && \
+              apt-get install -y libkrb5-dev && \
               python -m pip install -U "pip>=20.1" && \
               python -m pip install --upgrade pip setuptools wheel && \
               python -m pip install -r requirements-ci.txt && \
